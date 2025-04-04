@@ -31,7 +31,7 @@ COPY ./src/ubuntu/install/vs_code $INST_SCRIPTS/vs_code/
 RUN bash $INST_SCRIPTS/vs_code/install_vs_code.sh  && rm -rf $INST_SCRIPTS/vs_code/
 
 ### Install Java
-RUN apt-get update && apt-get install -y default-jdk default-jre
+RUN apt-get update && apt-get install -y openjdk-21-jdk default-jre
 
 ### Install IntelliJ
 COPY ./src/ubuntu/install/intellij $INST_SCRIPTS/intellij
@@ -40,6 +40,10 @@ RUN bash $INST_SCRIPTS/intellij/install_intellij.sh && rm -rf $INST_SCRIPTS/inte
 # Install Postman
 COPY ./src/ubuntu/install/postman $INST_SCRIPTS/postman/
 RUN bash $INST_SCRIPTS/postman/install_postman.sh  && rm -rf $INST_SCRIPTS/postman/
+
+# Install Node
+
+# Install Webstorm
 
 #ADD ./src/common/scripts $STARTUPDIR
 RUN $STARTUPDIR/set_user_permission.sh $HOME
