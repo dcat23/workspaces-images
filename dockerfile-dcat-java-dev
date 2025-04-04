@@ -42,8 +42,12 @@ COPY ./src/ubuntu/install/postman $INST_SCRIPTS/postman/
 RUN bash $INST_SCRIPTS/postman/install_postman.sh  && rm -rf $INST_SCRIPTS/postman/
 
 # Install Node
+COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
+RUN bash $INST_SCRIPTS/tools/install_node.sh  && rm -rf $INST_SCRIPTS/tools/
 
 # Install Webstorm
+COPY ./src/ubuntu/install/webstorm $INST_SCRIPTS/webstorm/
+RUN bash $INST_SCRIPTS/webstorm/install_webstorm.sh  && rm -rf $INST_SCRIPTS/webstorm/
 
 #ADD ./src/common/scripts $STARTUPDIR
 RUN $STARTUPDIR/set_user_permission.sh $HOME
