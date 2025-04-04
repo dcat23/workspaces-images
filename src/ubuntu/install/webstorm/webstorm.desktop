@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Webstorm
+GenericName=IDE
+Comment=The Javascript and Typescript IDE
+Exec=/opt/webstorm/bin/webstorm
+Icon=/opt/webstorm/bin/webstorm.png
+Terminal=false
+MimeType=text/plain;
+Categories=Development;IDE;
+StartupNotify=true
