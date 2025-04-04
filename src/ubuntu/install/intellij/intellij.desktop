@@ -1,11 +1,11 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=IntelliJ IDE
+Name=IntelliJ
 GenericName=IDE
 Comment=The IDE for Professional Development in Java and Kotlin
-Exec=/opt/idea-IC-*/bin/idea.sh
-Icon=/opt/idea-IC-*/bin/idea.png
+Exec=/opt/idea-IC/bin/idea
+Icon=/opt/idea-IC/bin/idea.png
 Terminal=false
 MimeType=text/plain;
 Categories=Development;IDE;
