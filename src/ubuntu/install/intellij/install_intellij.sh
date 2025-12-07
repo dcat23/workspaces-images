@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INTELLIJ_VER_DATE="2024.3.5"
+INTELLIJ_VER_DATE="2025.2.2"
 
 cd /tmp
 wget -q -O intellij.tar.gz "https://download.jetbrains.com/idea/ideaIU-${INTELLIJ_VER_DATE}.tar.gz"
