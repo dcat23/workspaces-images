@@ -13,7 +13,7 @@ set_desktop_icon() {
 }
 
 echo "Install Firefox"
-if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|fedora39|fedora40) ]]; then
+if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|fedora39|fedora40|fedora41) ]]; then
   dnf install -y firefox p11-kit
 elif [ "${DISTRO}" == "opensuse" ]; then
   zypper install -yn p11-kit-tools MozillaFirefox
@@ -78,7 +78,7 @@ for LANG in ${LANGS}; do
 done
 
 # Cleanup and install flash if supported
-if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|fedora39|fedora40) ]]; then
+if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|fedora39|fedora40|fedora41) ]]; then
   if [ -z ${SKIP_CLEAN+x} ]; then
     dnf clean all
   fi
@@ -105,7 +105,7 @@ else
   fi
 fi
 
-if [[ "${DISTRO}" != @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40) ]]; then
+if [[ "${DISTRO}" != @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40|fedora41) ]]; then
   # Update firefox to utilize the system certificate store instead of the one that ships with firefox
   if grep -q "ID=debian" /etc/os-release || grep -q "ID=kali" /etc/os-release || grep -q "ID=parrot" /etc/os-release && [ "${ARCH}" == "arm64" ]; then
     rm -f /usr/lib/firefox-esr/libnssckbi.so
@@ -119,8 +119,8 @@ if [[ "${DISTRO}" != @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|
   fi
 fi
 
-if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|fedora39|fedora40) ]]; then
-  if [[ "${DISTRO}" == @(fedora39|fedora40) ]]; then
+if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|fedora39|fedora40|fedora41) ]]; then
+  if [[ "${DISTRO}" == @(fedora39|fedora40|fedora41) ]]; then
     preferences_file=/usr/lib64/firefox/browser/defaults/preferences/firefox-redhat-default-prefs.js
   else
     preferences_file=/usr/lib64/firefox/browser/defaults/preferences/all-redhat.js
@@ -129,19 +129,19 @@ if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|
 elif [ "${DISTRO}" == "opensuse" ]; then
   preferences_file=/usr/lib64/firefox/browser/defaults/preferences/firefox.js
 elif grep -q "ID=kali" /etc/os-release; then
-  preferences_file=/usr/lib/firefox-esr/browser/defaults/preferences/firefox.js
+  preferences_file=/usr/lib/firefox-esr/defaults/pref/firefox.js
 elif grep -q "ID=debian" /etc/os-release || grep -q "ID=parrot" /etc/os-release; then
   if [ "${ARCH}" == "amd64" ]; then
     preferences_file=/usr/lib/firefox/defaults/pref/firefox.js
   else
-    preferences_file=/usr/lib/firefox-esr/browser/defaults/preferences/firefox.js
+    preferences_file=/usr/lib/firefox-esr/defaults/pref/firefox.js
   fi
 else
   preferences_file=/usr/lib/firefox/browser/defaults/preferences/firefox.js
 fi
 
 # Disabling default first run URL for Debian based images
-if [[ "${DISTRO}" != @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40) ]]; then
+if [[ "${DISTRO}" != @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40|fedora41) ]]; then
 cat >"$preferences_file" <<EOF
 pref("datareporting.policy.firstRunURL", "");
 pref("datareporting.policy.dataSubmissionEnabled", false);
@@ -152,7 +152,7 @@ pref("browser.aboutwelcome.enabled", false);
 EOF
 fi
 
-if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40) ]]; then
+if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40|fedora41) ]]; then
   # Creating a default profile
   chown -R root:root $HOME
   firefox -headless -CreateProfile "kasm $HOME/.mozilla/firefox/kasm"
@@ -176,21 +176,51 @@ else
   firefox -headless -CreateProfile "kasm $HOME/.mozilla/firefox/kasm"
 fi
 
-if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40) ]]; then
+# Silence Firefox security nag "Some of Firefox's features may offer less protection on your current operating system".
+echo 'user_pref("security.sandbox.warn_unprivileged_namespaces", false);' > $HOME/.mozilla/firefox/kasm/user.js
+chown 1000:1000 $HOME/.mozilla/firefox/kasm/user.js
+
+# configure smartcard support
+# note: some firefox versions don't read from the global pkcs11.txt when creating profiles
+if [[ ${KASM_SVC_SMARTCARD:-1} == 1 ]] && [ -f "$HOME/.pki/nssdb/pkcs11.txt" ]; then
+    cp $HOME/.pki/nssdb/pkcs11.txt $HOME/.mozilla/firefox/kasm/pkcs11.txt
+    chown 1000:1000 $HOME/.mozilla/firefox/kasm/pkcs11.txt
+fi
+
+if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40|fedora41) ]]; then
   set_desktop_icon
 fi
 
 # Starting with version 67, Firefox creates a unique profile mapping per installation which is hash generated
 #   based off the installation path. Because that path will be static for our deployments we can assume the hash
 #   and thus assign our profile to the default for the installation
-
-if [[ "${DISTRO}" != @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40) ]]; then
+if grep -q "ID=kali" /etc/os-release; then
+cat >>$HOME/.mozilla/firefox/profiles.ini <<EOL
+[Install3B6073811A6ABF12]
+Default=kasm
+Locked=1
+EOL
+elif grep -q "ID=debian" /etc/os-release || grep -q "ID=parrot" /etc/os-release; then
+  if [ "${ARCH}" != "amd64" ]; then
+    cat >>$HOME/.mozilla/firefox/profiles.ini <<EOL
+[Install3B6073811A6ABF12]
+Default=kasm
+Locked=1
+EOL
+  else
+    cat >>$HOME/.mozilla/firefox/profiles.ini <<EOL
+  [Install4F96D1932A9F858E]
+  Default=kasm
+  Locked=1
+EOL
+  fi
+elif [[ "${DISTRO}" != @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40|fedora41) ]]; then
 cat >>$HOME/.mozilla/firefox/profiles.ini <<EOL
 [Install4F96D1932A9F858E]
 Default=kasm
 Locked=1
 EOL
-elif [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40) ]]; then
+elif [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40|fedora41) ]]; then
 cat >>$HOME/.mozilla/firefox/profiles.ini <<EOL
 [Install11457493C5A56847]
 Default=kasm
@@ -199,7 +229,7 @@ EOL
 fi
 
 # Desktop Icon FIxes
-if [[ "${DISTRO}" == @(rockylinux9|oracle9|rhel9|almalinux9|fedora39|fedora40) ]]; then
+if [[ "${DISTRO}" == @(rockylinux9|oracle9|rhel9|almalinux9|fedora39|fedora40|fedora41) ]]; then
   sed -i 's#Icon=/usr/lib/firefox#Icon=/usr/lib64/firefox#g' $HOME/Desktop/firefox.desktop
 fi
 

@@ -10,9 +10,11 @@ stages:
 variables:
   BASE_TAG: "develop"
   USE_PRIVATE_IMAGES: 0
-  KASM_RELEASE: "1.16.0"
-  TEST_INSTALLER: "https://kasm-static-content.s3.amazonaws.com/kasm_release_1.16.0.a1d5b7.tar.gz"
+  KASM_RELEASE: "1.18.0"
+  TEST_INSTALLER: "https://kasm-static-content.s3.amazonaws.com/kasm_release_1.18.0.09f70a.tar.gz"
   MIRROR_ORG_NAME: "kasmtech"
+default:
+  retry: 2
 before_script:
   - export SANITIZED_BRANCH="$(echo $CI_COMMIT_REF_NAME | sed -r 's#^release/##' | sed 's/\//_/g')"
 
@@ -21,28 +23,32 @@ before_script:
 #######################
 template:
   stage: template
+  rules:
+    - when: always
   script:
     - apk add py3-jinja2 py3-yaml
     - cd ci-scripts
     - python3 template-gitlab.py
   tags:
-    - oci-fixed-amd
+    - oci-amd-scheduled
   artifacts:
     paths:
       - gitlab-ci.yml
+
 pipeline:
   stage: run
-  except:
-    variables:
-      - $README_USERNAME_RUN
-      - $README_PASSWORD_RUN
-      - $QUAY_API_KEY_RUN
-      - $DOCKERHUB_REVERT_RUN
-      - $REVERT_IS_ROLLING_RUN
+  rules:
+    - if: '$README_USERNAME_RUN || $README_PASSWORD_RUN || $QUAY_API_KEY_RUN || $DOCKERHUB_REVERT_RUN || $REVERT_IS_ROLLING_RUN'
+      when: never
+    - when: on_success
+  variables:
+    PARENT_PIPELINE_SOURCE: "$CI_PIPELINE_SOURCE"
+    RUN_SET: "$RUN_SET"
   trigger:
     include:
       - artifact: gitlab-ci.yml
         job: template
+
 pipeline_readme:
   stage: run
   only:
@@ -56,6 +62,7 @@ pipeline_readme:
     include:
       - artifact: gitlab-ci.yml
         job: template
+        
 pipeline_readme_quay:
   stage: run
   only:
@@ -67,6 +74,7 @@ pipeline_readme_quay:
     include:
       - artifact: gitlab-ci.yml
         job: template
+        
 pipeline_revert:
   stage: run
   only:

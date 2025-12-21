@@ -9,7 +9,7 @@ if [[ "${DISTRO}" == @(debian|opensuse|ubuntu) ]] && [ ${ARCH} = 'amd64' ] && [ 
   exit 0
 fi
 
-if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|fedora39|fedora40) ]]; then
+if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|fedora39|fedora40|fedora41) ]]; then
   dnf install -y chromium
   if [ -z ${SKIP_CLEAN+x} ]; then
     dnf clean all
@@ -74,17 +74,34 @@ fi
 mv /usr/bin/${REAL_BIN} /usr/bin/${REAL_BIN}-orig
 cat >/usr/bin/${REAL_BIN} <<EOL
 #!/usr/bin/env bash
+
+supports_vulkan() {
+  # Needs the CLI tool
+  command -v vulkaninfo >/dev/null 2>&1 || return 1
+
+  # Look for any non-CPU device
+  DISPLAY= vulkaninfo --summary 2>/dev/null |
+    grep -qE 'PHYSICAL_DEVICE_TYPE_(INTEGRATED_GPU|DISCRETE_GPU|VIRTUAL_GPU)'
+}
+
 if ! pgrep chromium > /dev/null;then
   rm -f \$HOME/.config/chromium/Singleton*
 fi
 sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' ~/.config/chromium/Default/Preferences
 sed -i 's/"exit_type":"Crashed"/"exit_type":"None"/' ~/.config/chromium/Default/Preferences
+
+VULKAN_FLAGS=
+if supports_vulkan; then
+  VULKAN_FLAGS="--use-angle=vulkan"
+  echo 'vulkan supported'
+fi
+
 if [ -f /opt/VirtualGL/bin/vglrun ] && [ ! -z "\${KASM_EGL_CARD}" ] && [ ! -z "\${KASM_RENDERD}" ] && [ -O "\${KASM_RENDERD}" ] && [ -O "\${KASM_EGL_CARD}" ] ; then
     echo "Starting Chrome with GPU Acceleration on EGL device \${KASM_EGL_CARD}"
-    vglrun -d "\${KASM_EGL_CARD}" /usr/bin/${REAL_BIN}-orig ${CHROME_ARGS} "\$@" 
+    vglrun -d "\${KASM_EGL_CARD}" /usr/bin/${REAL_BIN}-orig ${CHROME_ARGS} "\${VULKAN_FLAGS}" "\$@" 
 else
     echo "Starting Chrome"
-    /usr/bin/${REAL_BIN}-orig ${CHROME_ARGS} "\$@"
+    /usr/bin/${REAL_BIN}-orig ${CHROME_ARGS} "\${VULKAN_FLAGS}" "\$@"
 fi
 EOL
 chmod +x /usr/bin/${REAL_BIN}
@@ -93,7 +110,7 @@ if [ "${DISTRO}" != "opensuse" ] && ! grep -q "ID=debian" /etc/os-release && ! g
   cp /usr/bin/chromium-browser /usr/bin/chromium
 fi
 
-if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40) ]]; then
+if [[ "${DISTRO}" == @(oracle8|rockylinux9|rockylinux8|oracle9|rhel9|almalinux9|almalinux8|opensuse|fedora39|fedora40|fedora41) ]]; then
   cat >> $HOME/.config/mimeapps.list <<EOF
     [Default Applications]
     x-scheme-handler/http=${REAL_BIN}.desktop
