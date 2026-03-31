@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WEBSTORM_VER_DATE="2024.3.5"
+WEBSTORM_VER_DATE="2026.1"
 
 cd /tmp
 wget -q -O webstorm.tar.gz "https://download.jetbrains.com/webstorm/WebStorm-${WEBSTORM_VER_DATE}.tar.gz"
