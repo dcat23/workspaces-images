@@ -30,16 +30,20 @@ RUN bash $INST_SCRIPTS/tools/install_alias_cli.sh  && rm -rf $INST_SCRIPTS/tools
 COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
 RUN bash $INST_SCRIPTS/tools/install_jetbrains_reset_trial.sh  && rm -rf $INST_SCRIPTS/tools/
 
+# Install Node
+COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
+#RUN bash $INST_SCRIPTS/tools/install_node.sh  && rm -rf $INST_SCRIPTS/tools/
+
 # Install Google Chrome
 COPY ./src/ubuntu/install/chrome $INST_SCRIPTS/chrome/
 RUN bash $INST_SCRIPTS/chrome/install_chrome.sh  && rm -rf $INST_SCRIPTS/chrome/
 
 ### Install Visual Studio Code
-COPY ./src/ubuntu/install/vs_code $INST_SCRIPTS/vs_code/
-RUN bash $INST_SCRIPTS/vs_code/install_vs_code.sh  && rm -rf $INST_SCRIPTS/vs_code/
+#COPY ./src/ubuntu/install/vs_code $INST_SCRIPTS/vs_code/
+#RUN bash $INST_SCRIPTS/vs_code/install_vs_code.sh  && rm -rf $INST_SCRIPTS/vs_code/
 
 ### Install Java
-RUN apt-get update && apt-get install -y openjdk-21-jdk default-jre
+#RUN apt-get update && apt-get install -y default-jdk default-jre
 
 ### Install IntelliJ
 COPY ./src/ubuntu/install/intellij $INST_SCRIPTS/intellij
@@ -49,9 +53,6 @@ RUN bash $INST_SCRIPTS/intellij/install_intellij.sh && rm -rf $INST_SCRIPTS/inte
 COPY ./src/ubuntu/install/postman $INST_SCRIPTS/postman/
 RUN bash $INST_SCRIPTS/postman/install_postman.sh  && rm -rf $INST_SCRIPTS/postman/
 
-# Install Node
-COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
-RUN bash $INST_SCRIPTS/tools/install_node.sh  && rm -rf $INST_SCRIPTS/tools/
 
 # Install Webstorm
 # COPY ./src/ubuntu/install/webstorm $INST_SCRIPTS/webstorm/

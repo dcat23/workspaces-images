@@ -17,4 +17,4 @@ export NVM_DIR="$HOME/.nvm"
 nvm install node
 
 # Install package managers
-npm install -g pnpm yarn
+#npm install -g pnpm yarn
