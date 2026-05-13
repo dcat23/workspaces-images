@@ -1,9 +1,9 @@
 ############
 # Settings #
 ############
-image: docker:24.0.6
+image: docker:29.4.3
 services:
-  - docker:24.0.6-dind
+  - docker:29.4.3-dind
 stages:
   - template
   - run
