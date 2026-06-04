@@ -1,9 +1,29 @@
 services:
-    lm-studio:
-        build: 
+#    lm-studio:
+#        build:
+#            context: .
+#            dockerfile: dockerfile-macchiato-lmstudio
+#        image: macchiato23/kasm-lm-studio:latest
+#        shm_size: 512m
+#        ports:
+#            - "6902:6901"
+#        environment:
+#            VNC_PW: password
+#    development:
+#        build:
+#            context: .
+#            dockerfile: dockerfile-macchiato-lmstudio
+#        image: macchiato23/kasm-development:latest
+#        shm_size: 512m
+#        ports:
+#            - "6902:6901"
+#        environment:
+#            VNC_PW: password
+    parrot:
+        build:
             context: .
-            dockerfile: dockerfile-macchiato-lmstudio
-        image: macchiato23/kasm-lm-studio:latest
+            dockerfile: dockerfile-macchiato-parrotos-7
+        image: macchiato23/kasm-parrotos-7:latest
         shm_size: 512m
         ports:
             - "6902:6901"

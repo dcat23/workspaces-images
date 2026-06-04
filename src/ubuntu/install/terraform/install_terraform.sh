@@ -9,10 +9,10 @@ if [ "${ARCH}" == "arm64" ] ; then
 fi
 
 # Install terraform
-# apt-key add is deprecated in trixie and later, use keyrings instead
-# trixie does not have a release, so use bookworm temporarily
-if grep -q "trixie" /etc/os-release; then
-  mkdir -p /usr/share/keyrings
+# apt-key is removed in Debian 12+/Ubuntu 22.04+ and Debian-derivatives like Parrot OS 7
+# Use presence of apt-key to decide which method to use
+mkdir -p /usr/share/keyrings
+if ! command -v apt-key >/dev/null 2>&1; then
   curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com bookworm main" \
   > /etc/apt/sources.list.d/hashicorp.list
