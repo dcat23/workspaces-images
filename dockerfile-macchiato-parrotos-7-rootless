@@ -16,6 +16,42 @@ ENV DEBIAN_FRONTEND=noninteractive \
     INST_DIR=$STARTUPDIR/install
 
 
+### Install Parrot
+COPY ./src/ubuntu/install/parrot $INST_DIR/parrot/
+RUN bash $INST_DIR/parrot/install_parrot.sh  || exit 1;
+
+### Copy install tools
+COPY ./src/ubuntu/install/tools $INST_DIR/tools/
+
+### Install Alias CLI
+RUN bash $INST_DIR/tools/install_alias_cli.sh  || exit 1;
+
+### Install JetBrains Reset Trial
+RUN bash $INST_DIR/tools/install_jetbrains_reset_trial.sh  || exit 1;
+
+# Install Node
+RUN bash $INST_DIR/tools/install_node.sh  || exit 1;
+
+# Install Firefox
+COPY ./src/ubuntu/install/firefox $INST_DIR/firefox/
+RUN bash $INST_DIR/firefox/install_firefox.sh  || exit 1;
+
+# Install Brave
+COPY ./src/ubuntu/install/brave $INST_DIR/brave/
+RUN bash $INST_DIR/brave/install_brave.sh  || exit 1;
+
+### Install Thunderbird
+COPY ./src/ubuntu/install/thunderbird $INST_DIR/thunderbird/
+RUN bash $INST_DIR/thunderbird/install_thunderbird.sh  || exit 1;
+
+### Install Visual Studio Code
+COPY ./src/ubuntu/install/vs_code $INST_DIR/vs_code/
+RUN bash $INST_DIR/vs_code/install_vs_code.sh  || exit 1;
+
+### Install IntelliJ
+COPY ./src/ubuntu/install/intellij $INST_DIR/intellij/
+RUN bash $INST_DIR/intellij/install_intellij.sh || exit 1;
+
 # Rootless Dind
 COPY ./src/ubuntu/install/dind_rootless/install_dind_rootless.sh $INST_SCRIPTS/dind_rootless/
 RUN bash $INST_SCRIPTS/dind_rootless/install_dind_rootless.sh
@@ -32,53 +68,8 @@ RUN mkdir -p $XDG_RUNTIME_DIR && chown 1000:0 $XDG_RUNTIME_DIR && \
 COPY ./src/ubuntu/install/dind_rootless/daemon.json /home/kasm-user/.config/docker/daemon.json
 RUN chown 1000:0 /home/kasm-user/.config/docker/daemon.json
 
-# Copy install scripts
-COPY ./src/ubuntu/install $INST_DIR
-
-### Install Tools
-RUN bash $INST_DIR/tools/install_tools_deluxe.sh  || exit 1;
-
-# Install Utilities
-RUN bash $INST_DIR/misc/install_tools.sh || exit 1;
-
-### Install Alias CLI
-RUN bash $INST_DIR/tools/install_alias_cli.sh  || exit 1;
-
-### Install JetBrains Reset Trial
-RUN bash $INST_DIR/tools/install_jetbrains_reset_trial.sh  || exit 1;
-
-# Install Node
-RUN bash $INST_DIR/tools/install_node.sh  || exit 1;
-
-### Install Java
-RUN apt-get update && apt-get install -y default-jdk default-jre
-
-# Install Terraform
-RUN bash $INST_DIR/terraform/install_terraform.sh  || exit 1;
-
-# Install Firefox
-# XDG_RUNTIME_DIR is owned by kasm-user; override to /tmp so firefox can run as root during build
-RUN XDG_RUNTIME_DIR=/tmp bash $INST_DIR/firefox/install_firefox.sh  || exit 1;
-
-# Install Brave
-RUN XDG_RUNTIME_DIR=/tmp bash $INST_DIR/brave/install_brave.sh  || exit 1;
-
-### Install Visual Studio Code
-RUN bash $INST_DIR/vs_code/install_vs_code.sh  || exit 1;
-
-### Install IntelliJ
-RUN bash $INST_DIR/intellij/install_intellij.sh || exit 1;
-
-# Install Postman
-RUN bash $INST_DIR/postman/install_postman.sh  || exit 1;
-
-### Install Parrot
-# Flush accumulated apt cache from all previous install steps (SKIP_CLEAN=true keeps it around)
-# to ensure enough disk space for the large parrot security meta-packages
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
-RUN bash $INST_DIR/parrot/install_parrot.sh  || exit 1;
-
 # Install Cleanup
+COPY ./src/ubuntu/install/cleanup $INST_DIR/cleanup/
 RUN bash $INST_DIR/cleanup/cleanup.sh  || exit 1;
 
 RUN $STARTUPDIR/set_user_permission.sh $HOME && \
