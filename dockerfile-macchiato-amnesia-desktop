@@ -1,0 +1,58 @@
+ARG BASE_TAG="develop"
+ARG BASE_IMAGE="core-ubuntu-jammy"
+FROM kasmweb/$BASE_IMAGE:$BASE_TAG
+USER root
+
+ENV HOME /home/kasm-default-profile
+ENV STARTUPDIR /dockerstartup
+ENV INST_SCRIPTS $STARTUPDIR/install
+WORKDIR $HOME
+
+######### Customize Container Here ###########
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    SKIP_CLEAN=true \
+    KASM_RX_HOME=$STARTUPDIR/kasmrx \
+    DONT_PROMPT_WSL_INSTALL="No_Prompt_please"
+
+# Base tools
+COPY ./src/ubuntu/install/misc $INST_SCRIPTS/misc/
+RUN bash $INST_SCRIPTS/misc/install_tools.sh && rm -rf $INST_SCRIPTS/misc/
+
+# Alias CLI tool
+COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
+RUN bash $INST_SCRIPTS/tools/install_alias_cli.sh && rm -rf $INST_SCRIPTS/tools/
+
+# Tor Browser (primary browser)
+COPY ./src/ubuntu/install/torbrowser $INST_SCRIPTS/torbrowser/
+RUN bash $INST_SCRIPTS/torbrowser/install_torbrowser.sh && rm -rf $INST_SCRIPTS/torbrowser/
+
+# Thunderbird email client
+COPY ./src/ubuntu/install/thunderbird $INST_SCRIPTS/thunderbird/
+RUN bash $INST_SCRIPTS/thunderbird/install_thunderbird.sh && rm -rf $INST_SCRIPTS/thunderbird/
+
+# LibreOffice
+COPY ./src/ubuntu/install/libre_office $INST_SCRIPTS/libre_office/
+RUN bash $INST_SCRIPTS/libre_office/install_libre_office.sh && rm -rf $INST_SCRIPTS/libre_office/
+
+# Amnesia Desktop: privacy tools, desktop config, and wallpaper
+COPY ./src/ubuntu/install/amnesia_desktop $INST_SCRIPTS/amnesia_desktop/
+RUN bash $INST_SCRIPTS/amnesia_desktop/install_amnesia_desktop.sh
+RUN bash $INST_SCRIPTS/amnesia_desktop/install_amnesia_wallpaper.sh && rm -rf $INST_SCRIPTS/amnesia_desktop/
+
+# Cleanup
+COPY ./src/ubuntu/install/cleanup $INST_SCRIPTS/cleanup/
+RUN bash $INST_SCRIPTS/cleanup/cleanup.sh && rm -rf $INST_SCRIPTS/cleanup/
+
+######### End Customizations ###########
+
+RUN chown 1000:0 $HOME
+RUN $STARTUPDIR/set_user_permission.sh $HOME
+
+ENV HOME /home/kasm-user
+WORKDIR $HOME
+RUN mkdir -p $HOME && chown -R 1000:0 $HOME
+
+USER 1000
+
+CMD ["--tail-log"]

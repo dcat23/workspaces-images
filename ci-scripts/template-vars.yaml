@@ -914,3 +914,17 @@ singleImages:
       - src/ubuntu/install/thunderbird/**
       - src/ubuntu/install/torbrowser/**
       - src/ubuntu/install/cleanup/**
+  - name: amnesia-desktop
+    runset: set-b
+    singleapp: false
+    base: core-ubuntu-jammy
+    dockerfile: dockerfile-macchiato-amnesia-desktop
+    changeFiles:
+      - dockerfile-macchiato-amnesia-desktop
+      - src/ubuntu/install/amnesia_desktop/**
+      - src/ubuntu/install/torbrowser/**
+      - src/ubuntu/install/thunderbird/**
+      - src/ubuntu/install/libre_office/**
+      - src/ubuntu/install/misc/**
+      - src/ubuntu/install/tools/**
+      - src/ubuntu/install/cleanup/**

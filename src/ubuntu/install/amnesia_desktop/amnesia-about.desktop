@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=About Amnesia Desktop
+Comment=Privacy features, limitations, and usage guide
+Exec=mousepad /home/kasm-user/Desktop/ABOUT-AMNESIA-DESKTOP.txt
+Icon=help-about
+Terminal=false
+Categories=System;

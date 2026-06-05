@@ -19,6 +19,16 @@ services:
 #            - "6902:6901"
 #        environment:
 #            VNC_PW: password
+    amnesia-desktop:
+        build:
+            context: .
+            dockerfile: dockerfile-macchiato-amnesia-desktop
+        image: macchiato23/kasm-amnesia-desktop:latest
+        shm_size: 512m
+        ports:
+            - "6902:6901"
+        environment:
+            VNC_PW: password
     parrot:
         build:
             context: .
