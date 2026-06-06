@@ -49,17 +49,17 @@ RUN bash $INST_DIR/tools/install_jetbrains_reset_trial.sh  || exit 1;
 # Install Node
 RUN bash $INST_DIR/tools/install_node.sh  || exit 1;
 
-# Install Google Chrome
-RUN bash $INST_DIR/chrome/install_chrome.sh  || exit 1;
-
-# Install Chromium
-RUN bash $INST_DIR/chromium/install_chromium.sh  || exit 1;
+# Install Brave
+RUN bash $INST_DIR/brave/install_brave.sh  || exit 1;
 
 ### Install Visual Studio Code
 RUN bash $INST_DIR/vs_code/install_vs_code.sh  || exit 1;
 
 ### Install Java
 RUN apt-get update && apt-get install -y default-jdk default-jre
+
+### Install Claude Code
+RUN curl -fsSL https://claude.ai/install.sh | bash
 
 ### Install IntelliJ
 RUN bash $INST_DIR/intellij/install_intellij.sh || exit 1;
@@ -69,7 +69,6 @@ RUN bash $INST_DIR/postman/install_postman.sh  || exit 1;
 
 # Install Cleanup
 RUN bash $INST_DIR/cleanup/cleanup.sh  || exit 1;
-
 
 RUN $STARTUPDIR/set_user_permission.sh $HOME && \
   rm -f /etc/X11/xinit/Xclients && \
