@@ -9,16 +9,6 @@ services:
 #            - "6902:6901"
 #        environment:
 #            VNC_PW: password
-#    development:
-#        build:
-#            context: .
-#            dockerfile: dockerfile-macchiato-lmstudio
-#        image: macchiato23/kasm-development:latest
-#        shm_size: 512m
-#        ports:
-#            - "6902:6901"
-#        environment:
-#            VNC_PW: password
     development:
         build:
             context: .
@@ -54,6 +44,16 @@ services:
             context: .
             dockerfile: dockerfile-macchiato-parrotos-7-rootless
         image: macchiato23/kasm-parrotos-7-rootless:latest
+        shm_size: 512m
+        ports:
+            - "6902:6901"
+        environment:
+            VNC_PW: password
+    windows:
+        build:
+            context: .
+            dockerfile: dockerfile-macchiato-windows
+        image: macchiato23/kasm-windows:latest
         shm_size: 512m
         ports:
             - "6902:6901"
