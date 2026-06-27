@@ -93,6 +93,34 @@ if [ -d "$WORK_DIR/WhiteSur-gtk-theme/src/other/plank" ]; then
 fi
 
 # ---------------------------------------------------------------------------
+# Remove the symlink emblem arrow from desktop icons.
+# Kasm's Downloads/Uploads are symlinked directories; XFCE/GTK renders
+# emblem-symbolic-link on top of them.  Replace it with a transparent 1×1 PNG
+# in the hicolor fallback so all icon themes inherit the suppression.
+# ---------------------------------------------------------------------------
+python3 - << 'PYEOF'
+import zlib, struct, os
+
+def png_chunk(tag, data):
+    payload = tag + data
+    return struct.pack('>I', len(data)) + payload + struct.pack('>I', zlib.crc32(payload) & 0xffffffff)
+
+ihdr = struct.pack('>IIBBBBB', 1, 1, 8, 6, 0, 0, 0)   # 1×1 RGBA
+idat = zlib.compress(b'\x00\x00\x00\x00\x00')          # filter=0 + 4 zero bytes (RGBA)
+png  = b'\x89PNG\r\n\x1a\n'
+png += png_chunk(b'IHDR', ihdr)
+png += png_chunk(b'IDAT', idat)
+png += png_chunk(b'IEND', b'')
+
+for size in ('16x16', '22x22', '24x24', '32x32', '48x48'):
+    path = f'/usr/share/icons/hicolor/{size}/emblems'
+    os.makedirs(path, exist_ok=True)
+    with open(f'{path}/emblem-symbolic-link.png', 'wb') as f:
+        f.write(png)
+PYEOF
+gtk-update-icon-cache -f -t /usr/share/icons/hicolor 2>/dev/null || true
+
+# ---------------------------------------------------------------------------
 # Plank dock
 # Install autostart entry so Plank launches with the XFCE session, and write
 # a minimal preferences file that selects our Big Sur dock theme.
@@ -118,7 +146,7 @@ CurrentWorkspaceOnly=false
 #The size of dock icons (in pixels).
 IconSize=48
 #If 0, the dock won't hide. If 1, the dock auto-hides. If 2, the dock intellihides. If 3, the dock auto-hides and is dodge-active. If 4, the dock auto-hides and is dodge-maximized. If 5, the dock auto-hides and is windows-dodge.
-HideMode=1
+HideMode=0
 #Time to wait before unhiding the dock (in milliseconds).
 UnhideDelay=0
 #The dock theme to use.
@@ -404,8 +432,9 @@ cat > "$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml" << 'EOF'
         <property name="theme" type="string" value="WhiteSur-Dark"/>
         <property name="title_font" type="string" value="Sans Bold 9"/>
         <property name="title_alignment" type="string" value="center"/>
-        <property name="button_layout" type="string" value="O|SHMC"/>
-        <property name="use_compositing" type="bool" value="false"/>
+        <property name="button_layout" type="string" value="CHM|O"/>
+        <property name="use_compositing" type="bool" value="true"/>
+        <property name="sync_to_vblank" type="bool" value="false"/>
         <property name="workspace_count" type="int" value="4"/>
     </property>
 </channel>
