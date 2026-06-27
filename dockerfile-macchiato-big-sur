@@ -1,0 +1,53 @@
+ARG BASE_TAG="develop"
+ARG BASE_IMAGE="core-ubuntu-noble"
+FROM kasmweb/$BASE_IMAGE:$BASE_TAG
+USER root
+
+ENV HOME /home/kasm-default-profile
+ENV STARTUPDIR /dockerstartup
+ENV INST_SCRIPTS $STARTUPDIR/install
+WORKDIR $HOME
+
+######### Customize Container Here ###########
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    SKIP_CLEAN=true \
+    KASM_RX_HOME=$STARTUPDIR/kasmrx \
+    DONT_PROMPT_WSL_INSTALL="No_Prompt_please"
+
+# Base tools
+COPY ./src/ubuntu/install/misc $INST_SCRIPTS/misc/
+RUN bash $INST_SCRIPTS/misc/install_tools.sh && rm -rf $INST_SCRIPTS/misc/
+
+# Alias CLI tool
+COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
+RUN bash $INST_SCRIPTS/tools/install_alias_cli.sh && rm -rf $INST_SCRIPTS/tools/
+
+# Big Sur Theme
+COPY ./src/ubuntu/install/big_sur_theme $INST_SCRIPTS/big_sur_theme/
+RUN bash $INST_SCRIPTS/big_sur_theme/install_big_sur_theme.sh && rm -rf $INST_SCRIPTS/big_sur_theme/
+
+### Install Visual Studio Code
+COPY ./src/ubuntu/install/vs_code $INST_SCRIPTS/vs_code/
+RUN bash $INST_SCRIPTS/vs_code/install_vs_code.sh  || exit 1;
+
+# Install Firefox
+COPY ./src/ubuntu/install/firefox/ $INST_SCRIPTS/firefox/
+RUN bash $INST_SCRIPTS/firefox/install_firefox.sh && rm -rf $INST_SCRIPTS/firefox/
+
+# Cleanup
+COPY ./src/ubuntu/install/cleanup $INST_SCRIPTS/cleanup/
+RUN bash $INST_SCRIPTS/cleanup/cleanup.sh && rm -rf $INST_SCRIPTS/cleanup/
+
+######### End Customizations ###########
+
+RUN chown 1000:0 $HOME
+RUN $STARTUPDIR/set_user_permission.sh $HOME
+
+ENV HOME /home/kasm-user
+WORKDIR $HOME
+RUN mkdir -p $HOME && chown -R 1000:0 $HOME
+
+USER 1000
+
+CMD ["--tail-log"]

@@ -59,3 +59,13 @@ services:
             - "6902:6901"
         environment:
             VNC_PW: password
+    big-sur:
+        build:
+            context: .
+            dockerfile: dockerfile-macchiato-big-sur
+        image: macchiato23/kasm-big-sur:latest
+        shm_size: 512m
+        ports:
+            - "6902:6901"
+        environment:
+            VNC_PW: password
