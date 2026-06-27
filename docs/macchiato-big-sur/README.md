@@ -18,9 +18,11 @@ panel, a Plank dock, and the full SmallSur wallpaper collection.
 | **GTK theme** | [WhiteSur-gtk-theme](https://github.com/jothi-prasath/WhiteSur-gtk-theme) | Dark + Light variants installed system-wide |
 | **Icon theme** | [WhiteSur-icon-theme](https://github.com/vinceliuice/WhiteSur-icon-theme) | WhiteSur, WhiteSur-light, WhiteSur-dark |
 | **Cursor theme** | [WhiteSur-cursors](https://github.com/vinceliuice/WhiteSur-cursors) | WhiteSur-cursors |
-| **Window decorations** | WhiteSur-gtk-theme (xfwm4) | WhiteSur-Dark — macOS-style traffic-light buttons |
-| **Dock** | [Plank](https://launchpad.net/plank) | Themed with `mcOS-BS-iMacM1-Black`; autostarts with session |
+| **Window decorations** | WhiteSur-gtk-theme (xfwm4) | WhiteSur-Dark — traffic-light buttons on the left (`CHM\|O`) |
+| **Dock** | [Plank](https://launchpad.net/plank) | Themed with `mcOS-BS-iMacM1-Black`; always visible; autostarts with session |
 | **Wallpapers** | [SmallSur](https://github.com/jothi-prasath/SmallSur) | 5 wallpapers in `/usr/share/backgrounds/bigsur/` |
+| **File manager** | [Nemo](https://github.com/linuxmint/nemo) | Replaces Thunar; includes `nemo-fileroller` archive integration |
+| **Terminal emulator** | [Kitty](https://sw.kovidgoyal.net/kitty/) | Default terminal; registered via `exo-open` and `update-alternatives` |
 
 ### Default Active Settings
 
@@ -30,9 +32,14 @@ panel, a Plank dock, and the full SmallSur wallpaper collection.
 | Icon theme | WhiteSur-Dark |
 | Cursor theme | WhiteSur-cursors |
 | Window manager theme | WhiteSur-Dark |
+| Window button layout | `CHM\|O` — Close/Hide/Maximize on the left, app icon on the right |
+| Compositing | Enabled (`use_compositing=true`, `sync_to_vblank=false`) |
 | Default wallpaper | `monterey.png` (set as `bg_default.png`) |
+| Plank dock visibility | Always visible (`HideMode=0`) |
 | Plank theme | mcOS-BS-iMacM1-Black |
 | Panel background | `rgba(0, 0, 0, 0.30)` — 30% black tint (see-through) |
+| Default file manager | Nemo |
+| Default terminal | Kitty (shell: `/bin/bash`) |
 
 ### Top Panel Layout
 
@@ -52,6 +59,13 @@ inline in the panel, similar to macOS. GTK2/GTK3 app menus are exported via
 | Volume control | `xfce4-pulseaudio-plugin` |
 | Power manager | `xfce4-power-manager` |
 | Notifications | `xfce4-notifyd` |
+
+### Additional Applications
+
+| Application | Package(s) | Notes |
+|---|---|---|
+| **Nemo** | `nemo`, `nemo-fileroller` | Default file manager; replaces Thunar across all XFCE integration layers |
+| **Kitty** | `kitty` | Default terminal emulator; registered via `exo-open` helper and `update-alternatives` (priority 50) |
 
 ---
 
@@ -97,8 +111,38 @@ with the equivalent Noble packages: `appmenu-gtk2-module`, `appmenu-gtk3-module`
 ### Plank Dock
 
 Plank autostarts via `/etc/xdg/autostart/plank.desktop`. It launches with the
-`mcOS-BS-iMacM1-Black` theme and icon zoom enabled. Dock contents are not pre-populated
-with launchers — Plank will show only running applications by default.
+`mcOS-BS-iMacM1-Black` theme, always-visible mode (`HideMode=0`), and icon zoom enabled.
+Dock contents are not pre-populated with launchers — Plank will show only running
+applications by default.
+
+### Nemo File Manager
+
+Nemo replaces the Thunar daemon that the Kasm core session normally starts via
+`execThunar.sh`. A drop-in wrapper `execNemo.sh` sources `generate_container_user`
+and launches `nemo --no-default-window` as the session daemon (Client3 in
+`xfce4-session.xml`). MIME defaults for `inode/directory` are set both in the user
+profile (`mimeapps.list`) and system-wide (`/etc/xdg/mimeapps.list`).
+
+### Kitty Terminal
+
+Kitty is registered as the default terminal via three layers: an `exo-open` helper
+(`/usr/share/xfce4/helpers/kitty.desktop`), `helpers.rc`, and
+`update-alternatives` at priority 50 (above xterm/xfce4-terminal). Kitty is
+configured to use `/bin/bash` as its shell via `~/.config/kitty/kitty.conf`.
+
+### Symlink Emblem on Desktop Icons
+
+Kasm's Downloads and Uploads directories are exposed as symlinks. XFCE/GTK would
+normally render an `emblem-symbolic-link` arrow badge on top of those folder icons.
+This is suppressed by replacing `emblem-symbolic-link.png` in the
+`hicolor` icon theme (sizes 16×16 through 48×48) with a transparent 1×1 PNG, so
+the emblem inherits as invisible across all installed icon themes.
+
+### Compositing
+
+Compositing is enabled (`use_compositing=true`) with `sync_to_vblank=false` to avoid
+frame-rate locking over the VNC/WebRTC transport. If you experience rendering artefacts
+you can disable compositing via **Settings → Window Manager Tweaks → Compositor**.
 
 ### ulauncher
 
@@ -109,7 +153,7 @@ after launching the container, or extend this dockerfile with a PPA layer.
 
 ---
 
-## Adapations from SmallSur `install-debian.sh`
+## Adaptations from SmallSur `install-debian.sh`
 
 This image does **not** run `install-debian.sh` from the SmallSur repository directly.
 The original script is incompatible with a headless Docker build for several reasons:
@@ -124,6 +168,9 @@ The original script is incompatible with a headless Docker build for several rea
 | `install.sh -c dark` then `install.sh -c light` | Second call wipes the first install | Combined to single call: `install.sh -c dark -c light` |
 | `SUDO_USER` / `logname` unset in build | WhiteSur `install.sh` calls `logname` to resolve `MY_USERNAME`; fails silently under `set -Eeo pipefail` | `export SUDO_USER=root` before all installer calls |
 | Cursor path `dist/WhiteSur-cursors/` | Repo restructured — `dist/` is now the theme root | Uses cursor repo's own `install.sh` |
+| Thunar as session file manager | Kasm core launches `execThunar.sh` as Client3; Thunar unstyled and lacks archive integration | `execNemo.sh` wrapper replaces it; Nemo registered across all XFCE layers |
+| No terminal configured | Core image provides `xfce4-terminal`; no macOS-style terminal | Kitty installed and registered as the default terminal emulator |
+| Symlink emblem arrow on desktop icons | XFCE shows a badge on Kasm's symlinked Downloads/Uploads directories | `emblem-symbolic-link.png` replaced with a transparent PNG in `hicolor` |
 
 ---
 
@@ -174,7 +221,9 @@ Access via browser at `https://<host>:6901` — user: `kasm_user`, password: `pa
 | **Base image** | `kasmweb/core-ubuntu-noble:develop` |
 | **Image name** | `macchiato23/kasm-big-sur:latest` |
 | **Dockerfile** | `dockerfile-macchiato-big-sur` |
-| **Install script** | `src/ubuntu/install/big_sur_theme/install_big_sur_theme.sh` |
+| **Install scripts** | `src/ubuntu/install/big_sur_theme/install_big_sur_theme.sh` |
+| | `src/ubuntu/install/nemo/install_nemo.sh` |
+| | `src/ubuntu/install/kitty/install_kitty.sh` |
 | **Type** | Full desktop |
 
 ---

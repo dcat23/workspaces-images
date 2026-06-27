@@ -1,0 +1,7 @@
+# Live Demo
+
+**Launch a real-time demo in a new browser window:** <a href="https://kasm.catuns.xyz/#/cast/macchiato-noble" target="_blank">Live Demo</a>.
+
+<a href="https://kasm.catuns.xyz/#/cast/macchiato-noble" target="_blank"><img src="https://dcat23.github.io/kasm-registry/1.1/icons/macchiato.png" width="300" height="104"></a>
+
+&lowast;*Note: Demo is limited to 3 minutes and has upload/downloads restricted for security purposes.*

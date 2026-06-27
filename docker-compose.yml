@@ -69,3 +69,13 @@ services:
             - "6902:6901"
         environment:
             VNC_PW: password
+    noble:
+        build:
+            context: .
+            dockerfile: dockerfile-macchiato-noble
+        image: macchiato23/kasm-macchiato-noble:develop
+        shm_size: 512m
+        ports:
+            - "6902:6901"
+        environment:
+            VNC_PW: password

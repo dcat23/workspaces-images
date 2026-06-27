@@ -928,3 +928,22 @@ singleImages:
       - src/ubuntu/install/misc/**
       - src/ubuntu/install/tools/**
       - src/ubuntu/install/cleanup/**
+  - name: macchiato-noble
+    runset: set-a
+    singleapp: false
+    base: core-ubuntu-noble
+    dockerfile: dockerfile-macchiato-noble
+    changeFiles:
+      - dockerfile-macchiato-noble
+      - src/ubuntu/install/misc/**
+      - src/ubuntu/install/tools/**
+      - src/ubuntu/install/firefox/**
+      - src/ubuntu/install/thunderbird/**
+      - src/ubuntu/install/vs_code/**
+      - src/ubuntu/install/brave/**
+      - src/ubuntu/install/only_office/**
+      - src/ubuntu/install/zoom/**
+      - src/ubuntu/install/teams/**
+      - src/ubuntu/install/discord/**
+      - src/ubuntu/install/nextcloud/**
+      - src/ubuntu/install/cleanup/**

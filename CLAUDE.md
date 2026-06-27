@@ -9,7 +9,8 @@ Workspaces Images is the catalog of pre-built Kasm workspace images (application
 ## Repository Layout
 
 ```
-dockerfile-kasm-<name>      # Flat Dockerfile per image at repo root
+dockerfile-kasm-<name>      # Flat Dockerfile per image at repo root (official Kasm images)
+dockerfile-macchiato-<name> # Flat Dockerfile per image at repo root (custom macchiato images)
 src/
   ubuntu/install/<app>/     # Install scripts for Ubuntu-based images
   common/                   # Shared scripts used across distros
@@ -21,6 +22,11 @@ ci-scripts/
   test.sh                   # Runs post-build smoke tests via AWS/curl
   manifest.sh               # Creates and pushes multi-arch manifests
   weekly-manifest.sh        # Scheduled rolling-tag manifest updates
+docs/
+  <name>/
+    README.md               # Full image documentation
+    demo.txt                # Live demo link snippet (HTML)
+    description.txt         # One-line image description
 ```
 
 ## Building Images Locally
@@ -37,6 +43,8 @@ sudo docker run --rm -it --shm-size=512m -p 6901:6901 -e VNC_PW=password kasmweb
 The `BASE_TAG` build arg controls which core image tag is pulled (default: `develop`). Override with `--build-arg BASE_TAG=<tag>` to build against a specific core release.
 
 ## Adding a New Image
+
+### Official Kasm images (`dockerfile-kasm-<name>`)
 
 1. Create `dockerfile-kasm-<name>` at the repo root. Use an existing dockerfile as a template — the pattern is:
    - Set `ARG BASE_IMAGE` / `ARG BASE_TAG` and `FROM kasmweb/$BASE_IMAGE:$BASE_TAG`
@@ -57,7 +65,56 @@ The `BASE_TAG` build arg controls which core image tag is pulled (default: `deve
        - src/ubuntu/install/<name>/**
    ```
 
-3. The CI pipeline is generated — do **not** edit `gitlab-ci.yml` directly; edit `template-vars.yaml` and `template-gitlab.py` instead.
+3. Create three doc files under `docs/<name>/`:
+   - `README.md` — full documentation (what's included, build/run commands, image metadata, known limitations)
+   - `demo.txt` — live demo HTML snippet linking to `https://app.kasmweb.com/#/cast/<cast-id>`
+   - `description.txt` — single line, e.g. `Firefox for Kasm Workspaces`
+
+4. The CI pipeline is generated — do **not** edit `gitlab-ci.yml` directly; edit `template-vars.yaml` and `template-gitlab.py` instead.
+
+### Custom macchiato images (`dockerfile-macchiato-<name>`)
+
+Macchiato images use a custom base image (`macchiato23/kasm-core-macchiato-<name>`) instead
+of the standard `kasmweb/core-*` images. They are built and run via `docker-compose.yml`.
+
+1. Create `dockerfile-macchiato-<name>` at the repo root:
+   - Set `ARG BASE_IMAGE="kasm-core-macchiato-<name>"` / `ARG BASE_TAG="develop"`
+   - Use `FROM macchiato23/$BASE_IMAGE:$BASE_TAG`
+   - Layer install scripts from `src/ubuntu/install/<app>/` using the same COPY → RUN → rm pattern
+   - End with `chown 1000:0 $HOME`, `set_user_permission.sh`, and `USER 1000`
+
+2. Add a service to `docker-compose.yml`:
+   ```yaml
+   <name>:
+     build:
+       context: .
+       dockerfile: dockerfile-macchiato-<name>
+     image: macchiato23/kasm-macchiato-<name>:develop
+     shm_size: 512m
+     ports:
+       - "6902:6901"
+     environment:
+       VNC_PW: password
+   ```
+
+3. Create three doc files under `docs/macchiato-<name>/`:
+   - `README.md` — full documentation (apps table, build/run commands, image metadata, known limitations)
+   - `demo.txt` — live demo HTML snippet; use `https://kasm.catuns.xyz/#/cast/<name>` as the cast URL and `https://dcat23.github.io/kasm-registry/1.1/icons/<icon>.png` as the image src
+   - `description.txt` — single line, e.g. `Ubuntu Noble productivity desktop for Kasm Workspaces`
+
+4. Add an entry to `ci-scripts/template-vars.yaml` (at the end of the file, after other macchiato entries):
+   ```yaml
+   - name: macchiato-<name>
+     runset: set-a          # or set-b — alternate to distribute load
+     singleapp: false       # macchiato images are full desktops
+     base: core-ubuntu-noble  # underlying Ubuntu distro
+     dockerfile: dockerfile-macchiato-<name>
+     changeFiles:
+       - dockerfile-macchiato-<name>
+       - src/ubuntu/install/<app1>/**
+       - src/ubuntu/install/<app2>/**
+       - src/ubuntu/install/cleanup/**
+   ```
 
 ## CI/CD
 
