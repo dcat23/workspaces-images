@@ -39,6 +39,10 @@ RUN bash $INST_SCRIPTS/firefox/install_firefox.sh && rm -rf $INST_SCRIPTS/firefo
 COPY ./src/ubuntu/install/nemo $INST_SCRIPTS/nemo/
 RUN bash $INST_SCRIPTS/nemo/install_nemo.sh && rm -rf $INST_SCRIPTS/nemo/
 
+# Install Kitty as default terminal emulator
+COPY ./src/ubuntu/install/kitty $INST_SCRIPTS/kitty/
+RUN bash $INST_SCRIPTS/kitty/install_kitty.sh && rm -rf $INST_SCRIPTS/kitty/
+
 # Cleanup
 COPY ./src/ubuntu/install/cleanup $INST_SCRIPTS/cleanup/
 RUN bash $INST_SCRIPTS/cleanup/cleanup.sh && rm -rf $INST_SCRIPTS/cleanup/
