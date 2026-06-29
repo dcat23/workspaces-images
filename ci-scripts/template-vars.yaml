@@ -947,3 +947,35 @@ singleImages:
       - src/ubuntu/install/discord/**
       - src/ubuntu/install/nextcloud/**
       - src/ubuntu/install/cleanup/**
+  - name: macchiato-noble-development
+    runset: set-b
+    singleapp: false
+    base: macchiato-core-noble
+    dockerfile: dockerfile-macchiato-noble-development
+    changeFiles:
+      - dockerfile-macchiato-noble-development
+      - src/ubuntu/install/dind/**
+      - src/ubuntu/install/misc/**
+      - src/ubuntu/install/tools/**
+      - src/ubuntu/install/brave/**
+      - src/ubuntu/install/vs_code/**
+      - src/ubuntu/install/intellij/**
+      - src/ubuntu/install/postman/**
+      - src/ubuntu/install/thunderbird/**
+      - src/ubuntu/install/cleanup/**
+  - name: macchiato-noble-development-rootless
+    runset: set-a
+    singleapp: false
+    base: macchiato-core-noble
+    dockerfile: dockerfile-macchiato-noble-development-rootless
+    changeFiles:
+      - dockerfile-macchiato-noble-development-rootless
+      - src/ubuntu/install/dind_rootless/**
+      - src/ubuntu/install/misc/**
+      - src/ubuntu/install/tools/**
+      - src/ubuntu/install/brave/**
+      - src/ubuntu/install/vs_code/**
+      - src/ubuntu/install/intellij/**
+      - src/ubuntu/install/postman/**
+      - src/ubuntu/install/thunderbird/**
+      - src/ubuntu/install/cleanup/**

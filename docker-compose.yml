@@ -79,3 +79,24 @@ services:
             - "6902:6901"
         environment:
             VNC_PW: password
+    noble-development:
+        build:
+            context: .
+            dockerfile: dockerfile-macchiato-noble-development
+        image: macchiato23/kasm-macchiato-noble-development:develop
+        shm_size: 512m
+        ports:
+            - "6902:6901"
+        privileged: true
+        environment:
+            VNC_PW: password
+    noble-development-rootless:
+        build:
+            context: .
+            dockerfile: dockerfile-macchiato-noble-development-rootless
+        image: macchiato23/kasm-macchiato-noble-development-rootless:develop
+        shm_size: 512m
+        ports:
+            - "6902:6901"
+        environment:
+            VNC_PW: password
