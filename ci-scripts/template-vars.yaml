@@ -958,6 +958,7 @@ singleImages:
       - src/ubuntu/install/misc/**
       - src/ubuntu/install/tools/**
       - src/ubuntu/install/brave/**
+      - src/ubuntu/install/firefox/**
       - src/ubuntu/install/vs_code/**
       - src/ubuntu/install/intellij/**
       - src/ubuntu/install/postman/**
@@ -976,6 +977,7 @@ singleImages:
       - src/ubuntu/install/misc/**
       - src/ubuntu/install/tools/**
       - src/ubuntu/install/brave/**
+      - src/ubuntu/install/firefox/**
       - src/ubuntu/install/vs_code/**
       - src/ubuntu/install/intellij/**
       - src/ubuntu/install/postman/**

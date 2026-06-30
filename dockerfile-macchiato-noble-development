@@ -15,14 +15,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
     KASM_RX_HOME=$STARTUPDIR/kasmrx \
     DONT_PROMPT_WSL_INSTALL="No_Prompt_please"
 
-# DinD
-COPY ./src/ubuntu/install/dind/install_dind.sh $INST_SCRIPTS/dind/
-RUN bash $INST_SCRIPTS/dind/install_dind.sh && rm -rf $INST_SCRIPTS/dind/
-COPY ./src/ubuntu/install/dind/custom_startup.sh $STARTUPDIR/custom_startup.sh
-RUN chmod 755 $STARTUPDIR/custom_startup.sh
-COPY ./src/ubuntu/install/dind/dockerd.conf /etc/supervisor/conf.d/
-COPY ./src/ubuntu/install/dind/daemon.json /etc/docker/daemon.json
-
 # Base tools
 COPY ./src/ubuntu/install/misc $INST_SCRIPTS/misc/
 RUN bash $INST_SCRIPTS/misc/install_tools.sh && rm -rf $INST_SCRIPTS/misc/
@@ -39,6 +31,13 @@ RUN bash $INST_SCRIPTS/tools/install_tools_deluxe.sh && \
 # Brave Browser
 COPY ./src/ubuntu/install/brave/ $INST_SCRIPTS/brave/
 RUN bash $INST_SCRIPTS/brave/install_brave.sh && rm -rf $INST_SCRIPTS/brave/
+
+# Firefox (default browser)
+COPY ./src/ubuntu/install/firefox/ $INST_SCRIPTS/firefox/
+COPY ./src/ubuntu/install/firefox/firefox.desktop $HOME/Desktop/firefox.desktop
+RUN bash $INST_SCRIPTS/firefox/install_firefox.sh && \
+    bash $INST_SCRIPTS/firefox/set_default_browser.sh && \
+    rm -rf $INST_SCRIPTS/firefox/
 
 # VS Code
 COPY ./src/ubuntu/install/vs_code/ $INST_SCRIPTS/vs_code/
@@ -67,6 +66,14 @@ RUN bash $INST_SCRIPTS/terraform/install_terraform.sh && rm -rf $INST_SCRIPTS/te
 # GCP Cloud SDK
 COPY ./src/ubuntu/install/cloud_sdk/ $INST_SCRIPTS/cloud_sdk/
 RUN bash $INST_SCRIPTS/cloud_sdk/install_gcp_sdk.sh && rm -rf $INST_SCRIPTS/cloud_sdk/
+
+# DinD
+COPY ./src/ubuntu/install/dind/install_dind.sh $INST_SCRIPTS/dind/
+RUN bash $INST_SCRIPTS/dind/install_dind.sh && rm -rf $INST_SCRIPTS/dind/
+COPY ./src/ubuntu/install/dind/custom_startup.sh $STARTUPDIR/custom_startup.sh
+RUN chmod 755 $STARTUPDIR/custom_startup.sh
+COPY ./src/ubuntu/install/dind/dockerd.conf /etc/supervisor/conf.d/
+COPY ./src/ubuntu/install/dind/daemon.json /etc/docker/daemon.json
 
 # Cleanup
 COPY ./src/ubuntu/install/cleanup $INST_SCRIPTS/cleanup/

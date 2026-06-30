@@ -15,21 +15,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
     KASM_RX_HOME=$STARTUPDIR/kasmrx \
     DONT_PROMPT_WSL_INSTALL="No_Prompt_please"
 
-# Rootless DinD
-COPY ./src/ubuntu/install/dind_rootless/install_dind_rootless.sh $INST_SCRIPTS/dind_rootless/
-RUN bash $INST_SCRIPTS/dind_rootless/install_dind_rootless.sh && rm -rf $INST_SCRIPTS/dind_rootless/
-COPY ./src/ubuntu/install/dind_rootless/custom_startup.sh $STARTUPDIR/custom_startup.sh
-RUN chmod +x $STARTUPDIR/custom_startup.sh && chmod 755 $STARTUPDIR/custom_startup.sh
-COPY ./src/ubuntu/install/dind_rootless/modprobe /usr/local/bin/modprobe
-RUN chmod +x /usr/local/bin/modprobe
-ENV XDG_RUNTIME_DIR=/docker \
-    DOCKER_HOST=unix:///docker/docker.sock
-RUN mkdir -p $XDG_RUNTIME_DIR && chown 1000:0 $XDG_RUNTIME_DIR && \
-    mkdir -p /home/kasm-user/.config/docker && \
-    chown -R 1000:0 /home/kasm-user/.config
-COPY ./src/ubuntu/install/dind_rootless/daemon.json /home/kasm-user/.config/docker/daemon.json
-RUN chown 1000:0 /home/kasm-user/.config/docker/daemon.json
-
 # Base tools
 COPY ./src/ubuntu/install/misc $INST_SCRIPTS/misc/
 RUN bash $INST_SCRIPTS/misc/install_tools.sh && rm -rf $INST_SCRIPTS/misc/
@@ -46,6 +31,13 @@ RUN bash $INST_SCRIPTS/tools/install_tools_deluxe.sh && \
 # Brave Browser
 COPY ./src/ubuntu/install/brave/ $INST_SCRIPTS/brave/
 RUN bash $INST_SCRIPTS/brave/install_brave.sh && rm -rf $INST_SCRIPTS/brave/
+
+# Firefox (default browser)
+COPY ./src/ubuntu/install/firefox/ $INST_SCRIPTS/firefox/
+COPY ./src/ubuntu/install/firefox/firefox.desktop $HOME/Desktop/firefox.desktop
+RUN bash $INST_SCRIPTS/firefox/install_firefox.sh && \
+    bash $INST_SCRIPTS/firefox/set_default_browser.sh && \
+    rm -rf $INST_SCRIPTS/firefox/
 
 # VS Code
 COPY ./src/ubuntu/install/vs_code/ $INST_SCRIPTS/vs_code/
@@ -74,6 +66,21 @@ RUN bash $INST_SCRIPTS/terraform/install_terraform.sh && rm -rf $INST_SCRIPTS/te
 # GCP Cloud SDK
 COPY ./src/ubuntu/install/cloud_sdk/ $INST_SCRIPTS/cloud_sdk/
 RUN bash $INST_SCRIPTS/cloud_sdk/install_gcp_sdk.sh && rm -rf $INST_SCRIPTS/cloud_sdk/
+
+# Rootless DinD
+COPY ./src/ubuntu/install/dind_rootless/install_dind_rootless.sh $INST_SCRIPTS/dind_rootless/
+RUN bash $INST_SCRIPTS/dind_rootless/install_dind_rootless.sh && rm -rf $INST_SCRIPTS/dind_rootless/
+COPY ./src/ubuntu/install/dind_rootless/custom_startup.sh $STARTUPDIR/custom_startup.sh
+RUN chmod +x $STARTUPDIR/custom_startup.sh && chmod 755 $STARTUPDIR/custom_startup.sh
+COPY ./src/ubuntu/install/dind_rootless/modprobe /usr/local/bin/modprobe
+RUN chmod +x /usr/local/bin/modprobe
+ENV XDG_RUNTIME_DIR=/docker \
+    DOCKER_HOST=unix:///docker/docker.sock
+RUN mkdir -p $XDG_RUNTIME_DIR && chown 1000:0 $XDG_RUNTIME_DIR && \
+    mkdir -p /home/kasm-user/.config/docker && \
+    chown -R 1000:0 /home/kasm-user/.config
+COPY ./src/ubuntu/install/dind_rootless/daemon.json /home/kasm-user/.config/docker/daemon.json
+RUN chown 1000:0 /home/kasm-user/.config/docker/daemon.json
 
 # Cleanup
 COPY ./src/ubuntu/install/cleanup $INST_SCRIPTS/cleanup/
