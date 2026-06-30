@@ -27,12 +27,13 @@ COPY ./src/ubuntu/install/dind/daemon.json /etc/docker/daemon.json
 COPY ./src/ubuntu/install/misc $INST_SCRIPTS/misc/
 RUN bash $INST_SCRIPTS/misc/install_tools.sh && rm -rf $INST_SCRIPTS/misc/
 
-# Tools (deluxe, alias CLI, JetBrains reset trial, Node)
+# Tools (deluxe, alias CLI, JetBrains reset trial, Node, Claude Code)
 COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
 RUN bash $INST_SCRIPTS/tools/install_tools_deluxe.sh && \
     bash $INST_SCRIPTS/tools/install_alias_cli.sh && \
     bash $INST_SCRIPTS/tools/install_jetbrains_reset_trial.sh && \
     bash $INST_SCRIPTS/tools/install_node.sh && \
+    bash $INST_SCRIPTS/tools/install_claude_code.sh && \
     rm -rf $INST_SCRIPTS/tools/
 
 # Brave Browser
@@ -46,9 +47,6 @@ RUN bash $INST_SCRIPTS/vs_code/install_vs_code.sh && rm -rf $INST_SCRIPTS/vs_cod
 # Java & Maven
 RUN apt-get update && apt-get install -y default-jdk default-jre maven && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Claude Code
-RUN curl -fsSL https://claude.ai/install.sh | bash
 
 # IntelliJ IDEA
 COPY ./src/ubuntu/install/intellij/ $INST_SCRIPTS/intellij/
