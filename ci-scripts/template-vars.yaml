@@ -962,6 +962,8 @@ singleImages:
       - src/ubuntu/install/intellij/**
       - src/ubuntu/install/postman/**
       - src/ubuntu/install/thunderbird/**
+      - src/ubuntu/install/terraform/**
+      - src/ubuntu/install/cloud_sdk/**
       - src/ubuntu/install/cleanup/**
   - name: macchiato-noble-development-rootless
     runset: set-a
@@ -978,4 +980,6 @@ singleImages:
       - src/ubuntu/install/intellij/**
       - src/ubuntu/install/postman/**
       - src/ubuntu/install/thunderbird/**
+      - src/ubuntu/install/terraform/**
+      - src/ubuntu/install/cloud_sdk/**
       - src/ubuntu/install/cleanup/**

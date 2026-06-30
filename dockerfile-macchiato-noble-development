@@ -62,6 +62,14 @@ RUN bash $INST_SCRIPTS/postman/install_postman.sh && rm -rf $INST_SCRIPTS/postma
 COPY ./src/ubuntu/install/thunderbird/ $INST_SCRIPTS/thunderbird/
 RUN bash $INST_SCRIPTS/thunderbird/install_thunderbird.sh && rm -rf $INST_SCRIPTS/thunderbird/
 
+# Terraform
+COPY ./src/ubuntu/install/terraform/ $INST_SCRIPTS/terraform/
+RUN bash $INST_SCRIPTS/terraform/install_terraform.sh && rm -rf $INST_SCRIPTS/terraform/
+
+# GCP Cloud SDK
+COPY ./src/ubuntu/install/cloud_sdk/ $INST_SCRIPTS/cloud_sdk/
+RUN bash $INST_SCRIPTS/cloud_sdk/install_gcp_sdk.sh && rm -rf $INST_SCRIPTS/cloud_sdk/
+
 # Cleanup
 COPY ./src/ubuntu/install/cleanup $INST_SCRIPTS/cleanup/
 RUN bash $INST_SCRIPTS/cleanup/cleanup.sh && rm -rf $INST_SCRIPTS/cleanup/
